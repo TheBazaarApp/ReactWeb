@@ -1,14 +1,13 @@
 import React, { Component } from 'react'
 import '../css/App.css'
 import { Image, Button, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap'
-import { MenuBar } from './Navbar'
+
 
 
 export default class NewAlbum extends Component {
 	render() {
 		return (
 			<div>
-				<MenuBar />
 				<h1>Add New Album</h1>
 				<div>
 					<FormGroup>

@@ -38,7 +38,7 @@ class Album extends Component {
 				<Button>
 					<Carousel className="small center">
 						<Carousel.Item>
-							<img className="small" src={this.props.pic} />
+							<Image className="small" src={this.props.pic} />
 						</Carousel.Item>
 						<Carousel.Item>
 							<Image src={this.props.pic} />

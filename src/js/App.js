@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import '../css/App.css'
 import { MenuBar } from './Navbar'
 import { Feed } from './Feed'
-import { NewAlbum } from './NewAlbum'
 
 
 class App extends Component {

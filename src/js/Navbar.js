@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router' //TODO: Look into when curlies are necessary
+//import { Link } from 'react-router' //TODO: Look into when curlies are necessary
 import { Navbar, Nav, NavItem } from 'react-bootstrap'
 
 // Useful link: https://react-bootstrap.github.io/components.html#navbars

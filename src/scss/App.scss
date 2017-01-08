@@ -56,13 +56,15 @@
 	display: block;
 }
 
-
 .side-by-side {
 	div {
 		display: inline-block;
 	}
 }
 
+.inline {
+	display: inline-block;
+}
 
 .blue {
 	background-color: blue;
@@ -77,4 +79,14 @@
 	background-color: blue;
 	max-width: 800px;
 	padding: 20px;
+}
+
+
+.newPicButton {
+	float:right;
+}
+
+.newPic {
+	width: 200px;
+	height: 200px;
 }

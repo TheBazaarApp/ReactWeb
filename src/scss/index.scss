@@ -3,3 +3,16 @@ body {
   padding: 0;
   font-family: sans-serif;
 }
+
+
+.itemForSale {
+	background-color: orange;
+	width: 50px;
+	height: 50px;
+}
+
+
+.priceText {
+	color: purple;
+	transform: translate(0, 30px);
+}

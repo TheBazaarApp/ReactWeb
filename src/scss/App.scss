@@ -1,24 +1,80 @@
 .App {
-  text-align: center;
+	text-align: center;
 }
 
 .App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 80px;
+	animation: App-logo-spin infinite 20s linear;
+	height: 80px;
 }
 
 .App-header {
-  background-color: #222;
-  height: 150px;
-  padding: 20px;
-  color: white;
+	background-color: #222;
+	height: 150px;
+	padding: 20px;
+	color: white;
 }
 
 .App-intro {
-  font-size: large;
+	font-size: large;
 }
 
 @keyframes App-logo-spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+	from { transform: rotate(0deg); }
+	to { transform: rotate(360deg); }
+}
+
+
+.ugh {
+	background-color: purple;
+}
+
+
+
+.small {
+	width: 250px;
+	height: 250px;
+}
+
+.bluesticker {
+	background-image: url("../img/blueSticker.png");
+	background-repeat: no-repeat;
+	width: 70px;
+	height: 70px;
+	text-align: center;
+	vertical-align: middle;
+	line-height: 70px;
+	color: white;
+	font-size: large;
+	margin:auto;
+	display: block;
+	transform: translate(80px, -50%);
+}
+
+
+.center {
+	margin: auto;
+	display: block;
+}
+
+
+.side-by-side {
+	div {
+		display: inline-block;
+	}
+}
+
+
+.blue {
+	background-color: blue;
+}
+
+.white {
+	background-color: white;
+}
+
+
+#new-item-box {
+	background-color: blue;
+	max-width: 800px;
+	padding: 20px;
 }

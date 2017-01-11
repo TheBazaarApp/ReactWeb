@@ -1,20 +1,26 @@
 import React, { Component } from 'react'
 import '../css/App.css'
-//import { Link } from 'react-router'
-import { Image, /*Button*/ } from 'react-bootstrap'
+import { Image } from 'react-bootstrap'
 import * as firebase from 'firebase'
 import { MdStar, MdStarOutline, MdStarHalf} from 'react-icons/lib/md'
 
+//CURRENT STATUS:
+//		- Normal profile info and pic shows up fine
+//		- No way to edit profile yet
+//		- Doesn't display sold/unsold/purchased items
 
+
+
+//Profile - Class for the profile page
 export default class Profile extends Component {
-
 
 	constructor() {
 		super();
 		this.state = {
 			name: "name", 
 			collegeName: "Harvey Mudd College",
-			profilePic: "cheetah.jpg"
+			profilePic: "cheetah.jpg",
+			rating: 5
 		}
 	}
 
@@ -23,22 +29,41 @@ export default class Profile extends Component {
 			<div>
 				<h2>{this.state.name}</h2>
 				<h4>{this.state.collegeName}</h4>
-				<div class="side-by-side">
-					<MdStar />
+				<div className="side-by-side">
+					{[1,2,3,4,5].map((starNum) => this.getRatingStar(starNum))}
 				</div>
-				<Image src={this.state.profilePic}/>
+			{/*TODO: Choose image size using the column thing.*/}
+				<Image className="img-circle newPic" src={this.state.profilePic}/>
 			</div>
 		)
 	}
 
-
+	//Get all relevant info
 	componentDidMount() {
 		this.getProfilePic();
 		this.getProfileInfo();
 		//this.getItemsForSale();
 	}
 
-	//TODO: Test this once I have my phone!!!
+
+	//Get and return a star (empty, half, or full) for the user's rating
+	//		starNum - which star is it? (leftmost is 1)
+	getRatingStar(starNum) {
+		const rating = this.state.rating;
+		if (!rating) {
+			return; //If you don't have a rating yet, no stars
+		}
+		if (rating > starNum - .25) { //Full star
+			return <MdStar key={starNum} size={30} />;
+		} else if (rating > starNum - .75) { //Half star
+			return <MdStarHalf key={starNum} size={30} />;
+		} else { //Empty star
+			return <MdStarOutline key={starNum} size={30} />;
+		}
+	}
+
+
+	//Get the user's profile pic, save it to the state
 	getProfilePic() {
 		const storageRef = firebase.storage().ref();
 		var imageRef = storageRef.child(this.props.params.college + '/user/' + this.props.params.uid + '/ProfilePic');
@@ -50,8 +75,8 @@ export default class Profile extends Component {
 	}
 
 
+	//Get the user's personal profile info, save it to the state
 	getProfileInfo() {
-		//const profileRef = firebase.database().ref(this.props.params.college + '/user/' + this.props.params.uid + '/profile');
 		const profileRef = this.profilePath().child('profile');
 		profileRef.on('value', function(snapshot) {
 			if (snapshot) {
@@ -69,6 +94,7 @@ export default class Profile extends Component {
 	}
 
 
+	//Return a database reference to the user's profile.
 	profilePath() {
 		return firebase.database().ref(this.props.params.college + '/user/' + this.props.params.uid);
 	}

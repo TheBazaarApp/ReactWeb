@@ -1,37 +1,56 @@
 import React, { Component } from 'react'
 import '../css/App.css'
-import { MenuBar } from './Navbar'
+import MenuBar from './Navbar'
 import * as firebase from 'firebase'
 
+//TODO: Change database auth rules back!!
+
+
+//CURRENT STATUS
+//	- Puts a menubar on every page
+//	- Gets albums from firebase
+//	- Passes all data to EVERY child - not sure if that's a good idea
+//	- Doesn't get user data yet
+//	- Doesn't log you in yet
+
+
+
+
+//Useful links:
 //http://stackoverflow.com/questions/31862839/passing-props-to-react-router-children-routes
 //http://stackoverflow.com/questions/35835670/react-router-and-this-props-children-how-to-pass-state-to-this-props-children
 
-class App extends Component {
+export default class App extends Component {
 
-	//TODO: Possibly use user rather than uid
-	//TODO: Later make it not just one automatic user
+	//TODO: Later make it not just one automatic user or one default trading list
 	constructor() {
 		super();
-		//var user = {uid:"7BU605n3yDMci6fafU7iPIZUJhk1", college:"hmc_edu", email:"owatkins@g.hmc.edu"}; //TODO: Take this out //TODO: Better email
+		const user = {
+			userName: "Olivia the Great",
+			uid: "7BU605n3yDMci6fafU7iPIZUJhk1",
+			college: "hmc_edu"
+		}
 		this.state = {
 			albums: [], 
-			//user: user, //Null when not logged in //The current default is me (Olivia) //TODO: Possibly take this out
-			tradingList: ["hmc_edu"], //TODO: don't make hmc a default
+			user: user, //Null when not logged in //The current default is me (Olivia)
+			tradingList: ["hmc_edu"]
 		}
 	}
 
-
-	//TODO: Look up whether these functions are better here or in the constructor
-	//TODO: when you navigate away, does this disappear?
+	//Listen to colleges for items for the feed
+	//TODO: Consider moving this to the feed
 	componentDidMount() {
 		this.listenToColleges();
 	}
 
 
 	render() {
+		//Give all children certain properties (e.g. albums, current user);
+		//TODO: Maybe only give each child what it needs, potentially through a switch statement
 		var childrenWithProps = React.Children.map(this.props.children, function(child) {
 					return React.cloneElement(child, {
-						albums: this.state.albums
+						albums: this.state.albums,
+						user: this.state.user
 					});
 				}.bind(this));
 		return (
@@ -48,6 +67,7 @@ class App extends Component {
 	////////////                                                //////////
 	//////////////////////////////////////////////////////////////////////
 
+	//Listen for items for sale from each college the user is following
 	listenToColleges() {
 		for (const college of this.state.tradingList) {
 			const feedRef = firebase.database().ref().child(college + "/albums");
@@ -66,8 +86,6 @@ class App extends Component {
 		}.bind(this));
 	}
 
-
-
 	createChildChangedListener(feedRef, college) {
 		feedRef.on('child_changed', function(snapshot) {
 			let album = this.createAlbum(snapshot, college);
@@ -75,8 +93,7 @@ class App extends Component {
 		}.bind(this));
 	}
 
-
-
+	//Take in a snapshot and the college.Create and return an album object
 	createAlbum(snapshot, college) { //TODO: For the moment, we're not counting to see if the album needs to be deleted
 		//Album details
 		var newAlbum = {
@@ -121,7 +138,6 @@ class App extends Component {
 		return(newAlbum);
 	}
 
-
 	createChildRemovedListener(feedRef) {
 		feedRef.on('child_removed', function(snapshot) {
 			const deletedAlbumID = snapshot.key;
@@ -154,7 +170,7 @@ class App extends Component {
 		});
 	}
 
-
+	//When an album has been change, update it in albums and save the changes to state
 	updateAlbum(changedAlbum) {
 		var albums = this.state.albums;
 		var index = 0;
@@ -168,6 +184,7 @@ class App extends Component {
 		this.updateState(albums);
 	}
 
+	//Insert a new album to the albums array
 	insertAlbum(newAlbum) {
 		var inserted = false;
 		var albums = this.state.albums;
@@ -192,7 +209,11 @@ class App extends Component {
 	////////////                                                //////////
 	//////////////////////////////////////////////////////////////////////
 
+	// getUser(){
+	// 	//TODO: Get rid of this function once login is implemented
+		
 
+	// }
 
 
 
@@ -214,5 +235,3 @@ class App extends Component {
 	//Set alarm for phone call
 
 }
-
-export default App;

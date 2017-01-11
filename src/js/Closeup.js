@@ -4,6 +4,15 @@ import { Link } from 'react-router'
 import { Image, Button } from 'react-bootstrap'
 
 
+//CURRENT STATUS
+//	- Displays normal profile info okay
+//	- Pic used to display but now doesn't
+//	- Doesn't deal with any events (e.g. buying it)
+//	- Doesn't deal with already sold case (when this is soldItems, purchasedItems, sellerRejected, etc.)
+//	- Gets database info in a very sketchy way
+//	- Formatting :(
+
+
 export default class Closeup extends Component {
 	render() {
 		const itemData = this.getItem();
@@ -42,6 +51,7 @@ export default class Closeup extends Component {
 	}
 
 	//TODO: Instead, maybe we can pass the data from the app
+	//TODO: Alternatively, get this data directly from Firebase
 	getItem() {
 		for (let album of this.props.albums) {
 			for (let item of album.unsoldItems) {

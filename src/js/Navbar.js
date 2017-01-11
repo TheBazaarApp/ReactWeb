@@ -1,42 +1,52 @@
 import React from 'react'
-//import { Link } from 'react-router' //TODO: Look into when curlies are necessary
 import { Navbar, Nav, NavItem } from 'react-bootstrap'
+import { browserHistory } from 'react-router'
 
 // Useful link: https://react-bootstrap.github.io/components.html#navbars
-
-
-
-//TODO: If necessary, ditch react-router.
-//TODO: If we want to keep this, simulate NavItem with this:  <Link to="/about">Please Work</Link>
+//TODO: If necessary, ditch react-router.  If we want to keep it, simulate NavItem with this:  <Link to="/about">Please Work</Link>
 //TODO: Or use the onclick function here to navigate.
-//TODO: Do I really need export here?
-export class MenuBar extends React.Component {
+
+
+//CURRENT STATUS:
+//		- Most links aren't yet functional, but some are
+//		- Does not yet deal with the case where a user is not logged in
+
+
+//Menubar - This class defines the menu bar which appears across all pages of the site
+export default class MenuBar extends React.Component {
 	render() {
 		return(
 			<Navbar inverse collapseOnSelect>
+
 				<Navbar.Header>
 					<Navbar.Brand>
 						<a href="#">Bazaar</a>
 					</Navbar.Brand>
 					<Navbar.Toggle />
 				</Navbar.Header>
+
+			{/*On small screens, this section is not visible.  There's a dropdown instead.*/}
 				<Navbar.Collapse>
 					<Nav>
-						<NavItem eventKey={0} href="/about">Feed</NavItem>
-						<NavItem eventKey={1} href="#">My Items</NavItem>
-						<NavItem eventKey={6} href="#">Sell</NavItem>
-						<NavItem eventKey={2} href="#">Profile</NavItem>
-						<NavItem eventKey={3} href="#">Contacts</NavItem>
-						<NavItem eventKey={4} href="#">Notifications</NavItem>
-						<NavItem eventKey={5} href="#">Settings</NavItem>
+						<NavItem onClick={() => this.navigate("feed")}>Feed</NavItem>
+						<NavItem >My Items</NavItem>
+						<NavItem onClick={() => this.navigate("newAlbum")}>Sell</NavItem>
+						<NavItem >Profile</NavItem>
+						<NavItem >Contacts</NavItem>
+						<NavItem >Notifications</NavItem>
+						<NavItem >Settings</NavItem>
 					</Nav>
 					<Nav pullRight>
 						<NavItem eventKey={1} href="#">Log Out</NavItem>
 					</Nav>
 				</Navbar.Collapse>
+
 			</Navbar>
 		)
 	}
-}
 
-export default Navbar;
+	navigate(destination) {
+		const path = "/" + destination;
+		browserHistory.push(path);
+	}
+}

@@ -3,19 +3,17 @@ import '../css/App.css'
 import { Button, Image, FormGroup, FormControl, DropdownButton, MenuItem, Carousel } from 'react-bootstrap'
 import { browserHistory } from 'react-router'
 
-export class Feed extends Component {
 
+//CURRENT STATUS
+//		- Displays all items based on your list of colleges to trade with (although currently this is hard-coded)
+//		- Lets you filter by keyword and category, as well as AlbumView/ItemView
+//		- Lets you click through to Closeup
+//		- UI.  Lol.  It could use work.
 
-	// test() {
-	// 	console.log("test yay!!!");
-	// }
+export default class Feed extends Component {
 
-
-	//TODO: Possibly use user rather than uid
-	//TODO: Later make it not just one automatic user
 	constructor() {
 		super();
-		//this.test();
 		this.state = {
 			filterBy: "All Albums"
 		}
@@ -26,6 +24,8 @@ export class Feed extends Component {
 
 	render() {
 		const filterCategories = ["All Albums", "All Items", "Fashion", "Electronics", "Appliances", "Transportation", "Furniture", "School Supplies", "Services", "Other"];
+		
+		// Either show albums or items depending on what the user has selected
 		let itemsToShow = null;
 		if (this.state.filterBy === "All Albums") {
 			itemsToShow = this.props.albums.map(
@@ -48,10 +48,9 @@ export class Feed extends Component {
 		return (
 			<div className="wrapper ugh">
 				<div className="side-by-side">
+					{/* Filter/Category Options */}
 					<FormGroup>
-						<FormControl 
-							type="text"
-							placeholder="Filter by keyword" />
+						<FormControl type="text" placeholder="Filter by keyword" />
 					</FormGroup>
 					<DropdownButton 
 						id="categories" 
@@ -63,6 +62,7 @@ export class Feed extends Component {
 						})}
 					</DropdownButton>
 				</div>
+			{/*All of the items/albums are here. */}
 				{itemsToShow}
 			</div>
 		)
@@ -139,11 +139,5 @@ class PriceSticker extends Component {
 	}
 }
 
-
-
-
-
-
-export default Feed;
 
 

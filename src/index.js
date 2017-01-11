@@ -11,6 +11,12 @@ import Closeup from './js/Closeup'
 import Feed from './js/Feed'
 import Profile from './js/Profile'
 
+//CURRENT STATUS
+//	- connects to Firebase
+//	- Sets up navigation to every page which has been created yet.
+//	- This page is pretty solid - yay!
+
+
 
 // Start Firebase
 var config = {
@@ -37,4 +43,3 @@ ReactDOM.render((
 	</Router>
 ), document.getElementById('root'));
 
-//TODO: How to put useful info in the header

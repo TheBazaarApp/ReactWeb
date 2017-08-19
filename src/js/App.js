@@ -41,6 +41,7 @@ export default class App extends Component {
 	//TODO: Consider moving this to the feed
 	componentDidMount() {
 		this.listenToColleges();
+		this.listenToMyItems();
 	}
 
 
@@ -50,12 +51,18 @@ export default class App extends Component {
 		var childrenWithProps = React.Children.map(this.props.children, function(child) {
 					return React.cloneElement(child, {
 						albums: this.state.albums,
+						myAlbums: this.state.myAlbums,
+						unsoldItems: this.state.unsoldItems,
+						soldItems: this.state.soldItems,
+						purchasedItems: this.state.purchasedItems,
 						user: this.state.user
 					});
 				}.bind(this));
 		return (
 			<div className="App">
-				<MenuBar />
+				<MenuBar 
+					college={this.state.user.college}
+					uid={this.state.user.uid} />
 				{childrenWithProps}
 			</div>
 		);
@@ -71,14 +78,52 @@ export default class App extends Component {
 	listenToColleges() {
 		for (const college of this.state.tradingList) {
 			const feedRef = firebase.database().ref().child(college + "/albums");
-			this.createChildAddedListener(feedRef, college);
-			this.createChildChangedListener(feedRef, college);
-			this.createChildRemovedListener(feedRef);
+			this.createChildAddedListener_Feed(feedRef, college);
+			this.createChildChangedListener_Feed(feedRef, college);
+			this.createChildRemovedListener_Feed(feedRef);
 		} 	
 	}
 
+
+	listenToMyItems() {
+		this.createMyItemListener('unsoldItems')
+		this.createMyItemListener('soldItems')
+		this.createMyItemListener('purchasedItems')
+	}
+
+	createMyItemListener(category) {
+		var dataRef = firebase.database().ref().child(this.state.user.college + "/user/" + this.state.user.uid + "/" + category)
+		dataRef.on('value', function(snapshot) {
+			var myItems = []
+			for (var itemInfo in snapshot.val()) {
+				myItems.push(this.createItem(snapshot.child(itemInfo)))
+			}
+			var dict = {}
+			dict[category] = myItems
+			this.setState(dict)
+		}.bind(this));
+	}
+
+	createItem(itemInfo) {
+		var newItem = {
+			albumKey: itemInfo.child('albumKey').val(),
+			albumName: itemInfo.child('albumName').val(),
+			buyerCollege: itemInfo.child('buyerCollege').val(),
+			buyerID: itemInfo.child('buyerID').val(),
+			buyerName: itemInfo.child('buyerName').val(),
+			description: itemInfo.child('description').val(),
+			name: itemInfo.child('name').val(),
+			price: itemInfo.child('price').val(),
+			tag: itemInfo.child('tag').val(),
+			timestamp: itemInfo.child('timestamp').val(),
+			picture: 'cheetah.jpg', //TODO: take this out
+		}
+		return newItem
+	}
+
+
 	//TODO: Maybe hide image until it shows up
-	createChildAddedListener(feedRef, college) {
+	createChildAddedListener_Feed(feedRef, college) {
 		//const improveFeedRef = feedRef.queryOrderedByChild("albumDetails/timestamp");
 		feedRef.on('child_added', function(snapshot) {
 			let album = this.createAlbum(snapshot, college);
@@ -86,7 +131,7 @@ export default class App extends Component {
 		}.bind(this));
 	}
 
-	createChildChangedListener(feedRef, college) {
+	createChildChangedListener_Feed(feedRef, college) {
 		feedRef.on('child_changed', function(snapshot) {
 			let album = this.createAlbum(snapshot, college);
 			this.updateAlbum(album);
@@ -138,7 +183,7 @@ export default class App extends Component {
 		return(newAlbum);
 	}
 
-	createChildRemovedListener(feedRef) {
+	createChildRemovedListener_Feed(feedRef) {
 		feedRef.on('child_removed', function(snapshot) {
 			const deletedAlbumID = snapshot.key;
 			let albums = this.state.albums;
@@ -165,7 +210,6 @@ export default class App extends Component {
 			item.picture = url;
 			this.updateAlbum(album);
 		}.bind(this)).catch(function(error) {
-			//console.log("didn't get pic :(     " + error);
 			//TODO: Later on, make it repeat a few times if it isn't loading.
 		});
 	}

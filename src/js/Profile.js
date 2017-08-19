@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import '../css/App.css'
-import { Image } from 'react-bootstrap'
+import { Image, Button, FormGroup, FormControl, HelpBlock } from 'react-bootstrap'
 import * as firebase from 'firebase'
 import { MdStar, MdStarOutline, MdStarHalf} from 'react-icons/lib/md'
 
@@ -20,20 +20,37 @@ export default class Profile extends Component {
 			name: "name", 
 			collegeName: "Harvey Mudd College",
 			profilePic: "cheetah.jpg",
-			rating: 5
+			rating: 5,
+			tempName: null,
+			tempCollege: null
 		}
+		this.handleNameChange = this.handleNameChange.bind(this);
+		this.handleCollegeChange = this.handleCollegeChange.bind(this);
 	}
 
 	render() {
 		return (
 			<div>
-				<h2>{this.state.name}</h2>
-				<h4>{this.state.collegeName}</h4>
+				{ (!this.state.edit) && <h2>{this.state.name}</h2>}
+				{ (this.state.edit) && 
+					<FormGroup className="small-width center">
+						<FormControl type="text" defaultValue={this.state.name} value={this.state.tempName} onChange={(event) => this.handleNameChange(event)} />
+						<HelpBlock>Name</HelpBlock>
+					</FormGroup>}
+				{ (!this.state.edit) && <h4>{this.state.collegeName}</h4>}
+				{ (this.state.edit) && 
+					<FormGroup className="small-width center">
+						<FormControl type="text" defaultValue={this.state.collegeName} value={this.state.tempCollege} onChange={(event) => this.handleCollegeChange(event)} />
+						<HelpBlock>College</HelpBlock>
+					</FormGroup>}
 				<div className="side-by-side">
 					{[1,2,3,4,5].map((starNum) => this.getRatingStar(starNum))}
 				</div>
 			{/*TODO: Choose image size using the column thing.*/}
 				<Image className="img-circle newPic" src={this.state.profilePic}/>
+				{ (!this.state.edit) && <Button className="center" onClick={() => this.toggleEdit(true)} >Edit</Button> }
+				{ (this.state.edit) && <Button className="center" onClick={() => this.toggleEdit(false)}>Cancel</Button>}
+				{ (this.state.edit) && <Button className="center" onClick={() => this.saveProfile()}>Save</Button>}
 			</div>
 		)
 	}
@@ -77,10 +94,9 @@ export default class Profile extends Component {
 
 	//Get the user's personal profile info, save it to the state
 	getProfileInfo() {
-		const profileRef = this.profilePath().child('profile');
+		const profileRef = this.profilePath();
 		profileRef.on('value', function(snapshot) {
 			if (snapshot) {
-				console.log("Got a snapshot!" + snapshot);
 				const name = snapshot.val().name;
 				const rating = snapshot.val().rating;
 				const collegeName = "Harvey Mudd College"; //TODO: Get this from their email domain
@@ -96,8 +112,36 @@ export default class Profile extends Component {
 
 	//Return a database reference to the user's profile.
 	profilePath() {
-		return firebase.database().ref(this.props.params.college + '/user/' + this.props.params.uid);
+		return firebase.database().ref(this.props.params.college + '/user/' + this.props.params.uid + "/profile");
 	}
+
+	toggleEdit(isOn) {
+		this.setState({edit: isOn})
+	}       
+
+	saveProfile() {
+		const profileRef = this.profilePath();
+		const newProfile = {
+			name: this.state.tempName,
+			collegeName: this.state.tempCollege
+		}
+		console.log("saving profile", profileRef);
+		console.log(newProfile);
+		profileRef.update(newProfile);
+		this.toggleEdit(false);
+		
+	}
+
+	handleNameChange(event) {
+		this.setState({tempName:event.target.value});
+		console.log("changine name")
+	}
+
+	handleCollegeChange(event) {
+		this.setState({tempCollege:event.target.value});
+	}
+
+
 
 
 

@@ -29,9 +29,9 @@ export default class MenuBar extends React.Component {
 				<Navbar.Collapse>
 					<Nav>
 						<NavItem onClick={() => this.navigate("feed")}>Feed</NavItem>
-						<NavItem >My Items</NavItem>
+						<NavItem onClick={() => this.navigate("myItems/" + this.props.college + "/" + this.props.uid + "/unsold")}>My Items</NavItem>
 						<NavItem onClick={() => this.navigate("newAlbum")}>Sell</NavItem>
-						<NavItem >Profile</NavItem>
+						<NavItem onClick={() => this.navigate("profile/" + this.props.college + "/" + this.props.uid)}>Profile</NavItem>
 						<NavItem >Contacts</NavItem>
 						<NavItem >Notifications</NavItem>
 						<NavItem >Settings</NavItem>

@@ -1,20 +1,10 @@
 import React, { Component } from 'react'
 import '../css/App.css'
-import { Image, Button, Modal, Checkbox, HelpBlock, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap'
-import { MdCancel } from 'react-icons/lib/md'
+import { Image, Button, Modal, Checkbox, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap'
+import { MdCancel, MdAddCircle } from 'react-icons/lib/md'
 import * as firebase from 'firebase'
 import { browserHistory } from 'react-router'
-
-
-//CURRENT STATUS
-//		- Lets you create an album
-//		- verifies that all required fields are present
-//		- Lets you specify iso/noniso
-//		- Does not yet format price
-//		- Doesn't check that the file you uploaded is an image
-//		- Doesn't let you edit an album
-//		- Doesn't check for bad words
-//		- UI is truly horrendous
+import NumericInput from 'react-numeric-input'
 
 
 export default class NewAlbum extends Component {
@@ -50,7 +40,7 @@ export default class NewAlbum extends Component {
 					{/*Album Details*/}
 					<FormGroup validationState={(this.state.highlighted && this.state.albumName === "") ? 'error' : null }>
 						<ControlLabel>Album Name:</ControlLabel>
-						<FormControl type="text" onChange={this.handleAlbumChange} />
+						<FormControl type="text" className="album-name" onChange={this.handleAlbumChange} />
 					</FormGroup>
 					<FormGroup>
 						<ControlLabel>Tag All:</ControlLabel>
@@ -65,7 +55,7 @@ export default class NewAlbum extends Component {
 					<Checkbox onChange={(event) => this.toggleISO(event.target.checked)}>ISO (in search of) album</Checkbox>
 					
 					{/*Growing List of Items*/}
-					<div id="new-item-box" className="center">
+					<div id="new-item-box" className="center curve-corner our-blue">
 						{this.state.items.map(
 							(item, index) => {
 								return(
@@ -84,9 +74,10 @@ export default class NewAlbum extends Component {
 									/>)
 							})
 						}
-						<Button className="center" onClick={this.addNewItem}>+</Button>
-						<Button onClick={this.addNewAlbum} >Create Album</Button>
+						<button className="center add-button" onClick={this.addNewItem}><MdAddCircle size={40}/></button>
 					</div>
+					<br/>
+					<Button bsSize="large" className="create-button" onClick={this.addNewAlbum}>Create Album</Button>
 				</div>
 
 				{/*Popup when you try to change a tag while Tag All is selected.*/}
@@ -147,8 +138,13 @@ export default class NewAlbum extends Component {
 	//TODO: Ensure price is in the correct format
 	//Updates state to show that an item's price is changed
 	handlePriceChange(newPrice, index) {
+		
 		let items = this.state.items;
 		items[index].price = newPrice;
+		// if (!isNaN(parseFloat(newPrice))) {
+		// 	items[index].price = parseFloat(newPrice).toFixed(2);
+		// }
+
 		this.setState({
 			items: items
 		})
@@ -244,8 +240,7 @@ export default class NewAlbum extends Component {
 
 
 	//Save a new album and all of the items in it to our database
-	addNewAlbum() {
-
+	addNewAlbum() {;
 		//If fields aren't valid, we can't save yet
 		if (this.checkValidityProblems()) {
 			return;
@@ -272,6 +267,7 @@ export default class NewAlbum extends Component {
 		
 
 			if(item.pic) {
+				console.log("saving pic")
 				this.savePic(college, uid, imageKey, item.file);
 			}
 
@@ -331,7 +327,7 @@ export default class NewAlbum extends Component {
 		childUpdates[college + "/albums/" + albumKey + "/albumDetails"] = albumDetailsUnderCollege;
 		
 		firebase.database().ref().update(childUpdates);
-
+		console.log("about to go to feed");
 		//Once it's saved, get bumped back to the feed (or maybe to a 'Success' page) //TODO: Discuss success page
 		this.goToFeed();
 	} //TODO: deal with errors in updating.
@@ -386,9 +382,6 @@ export default class NewAlbum extends Component {
 		}
 		return(problems);
 	}
-
-
-
 }
 
 
@@ -416,53 +409,62 @@ class NewItem extends Component {
 		//Only show the X button on items which have pics
 		let cancelButton = null;
 		if (item.pic) {
-			cancelButton = <Button onClick={this.removePic}><MdCancel /></Button>
+			cancelButton = <button className="flat-button"onClick={this.removePic}><MdCancel /></button>
 		}
 
 		return (
-			<div className="white newItem">
-				<div className="inline">
-				{/*Item Name*/}
-					<FormGroup validationState={(item.highlighted && item.itemName === "") ? 'error' : null}> 
-						<ControlLabel>Item Name:</ControlLabel>
-						<FormControl type="text" onChange={this.handleNameChange} value={item.itemName} />
-					</FormGroup>
-				{/*Tag */}
-					<FormGroup>
-						<ControlLabel>Tag:</ControlLabel>
-					{/*Code below doesn't do exactly what I wanted, but oh well (currently, it defaults to "None" when ISO clicked)*/}
+			<div className="white newItem curve-corner">
+				<div className="ten-padding flex-parent">
+					<div className="inline flex five-padding">
+					{/*Item Name*/}
+						<FormGroup validationState={(item.highlighted && item.itemName === "") ? 'error' : null}> 
+							<ControlLabel>Item Name:</ControlLabel>
+							<FormControl type="text" onChange={this.handleNameChange} value={item.itemName} />
+						</FormGroup>
+					{/*Tag */}
+						<FormGroup>
+							<ControlLabel>Tag:</ControlLabel>
+						{/*Code below doesn't do exactly what I wanted, but oh well (currently, it defaults to "None" when ISO clicked)*/}
+							<FormControl 
+								readOnly={this.props.isISO}
+								componentClass="select" value={this.props.isISO ? "In Search Of" : item.tag}
+								onChange={this.handleTagChange}>
+								{filterCategories.map((category, index) => {
+									return ( <option key={index} value={category}>{category}</option> );
+								})}	
+							</FormControl>
+						</FormGroup>
+						<FormGroup validationState={(item.highlighted && item.itemName === "") ? 'error' : null}> 
+							<ControlLabel>Item Name:</ControlLabel>
+							<NumericInput precision={2} value={item.price} onChange={this.handlePriceChange}/> 
+						</FormGroup>
+					{/*Decription*/}
+						<FormGroup validationState={(item.highlighted && this.props.isISO && item.description === "") ? 'error' : null}>
+							<ControlLabel>Description:</ControlLabel>
+							<FormControl className="vertical-only" componentClass="textarea" onChange={this.handleDescriptionChange} value={item.description}/>
+						</FormGroup>
+					</div>
+				{/*Picture*/}
+					<FormGroup className="inline newPicButton five-padding" validationState={(item.highlighted && !this.props.isISO && item.pic === null) ? 'error' : null} >
+						<Image className="newPic" src={item.pic} /> {/*Why doesn't Image work here?*/}
 						<FormControl 
-							readOnly={this.props.isISO}
-							componentClass="select" value={this.props.isISO ? "In Search Of" : item.tag}
-							onChange={this.handleTagChange}>
-							{filterCategories.map((category, index) => {
-								return ( <option key={index} value={category}>{category}</option> );
-							})}	
-						</FormControl>
-					</FormGroup>
-				{/*Price */}
-					<FormGroup validationState={(item.highlighted && !this.props.isISO && item.price === "") ? 'error' : null}>
-						<ControlLabel>Price:</ControlLabel>
-						<FormControl type="text" onChange={this.handlePriceChange} value={item.price}/>
-					</FormGroup>
-				{/*Decription*/}
-					<FormGroup validationState={(item.highlighted && this.props.isISO && item.description === "") ? 'error' : null}>
-						<ControlLabel>Description:</ControlLabel>
-						<FormControl componentClass="textarea" onChange={this.handleDescriptionChange} value={item.description}/>
+							type="file" accept="image/*" onChange={this.handlePicChange} />
+						{cancelButton}
 					</FormGroup>
 				</div>
-			{/*Picture*/}
-				<FormGroup className="inline newPicButton" validationState={(item.highlighted && !this.props.isISO && item.pic === null) ? 'error' : null} >
-					<Image className="newPic" src={item.pic} /> {/*Why doesn't Image work here?*/}
-					<FormControl 
-						type="file" onChange={this.handlePicChange} />
-					{cancelButton}
-					<HelpBlock>Accepted file formats: (INSERT)</HelpBlock>
-				</FormGroup>
 			{/*X-button*/}
-				<Button onClick={this.removeItem}><MdCancel size={40}/></Button>
+			<div className="block">
+				<button className="flat-button" onClick={this.removeItem}><MdCancel size={40}/></button>
 			</div>
+		</div>
 		)
+	}
+
+	invalidPrice(price) {
+		return price || this.props.isISO;
+		// if (isNaN(parseFloat(price))) {
+		// 	return false;
+		// }
 	}
 
 	//TODO: Is there a more efficient way to deal with these?
@@ -482,8 +484,8 @@ class NewItem extends Component {
 		this.props.handlePicChange(event.target.files, this.props.index);
 	}
 
-	handlePriceChange(event) {
-		this.props.handlePriceChange(event.target.value, this.props.index);
+	handlePriceChange(value) {
+		this.props.handlePriceChange(value, this.props.index);
 	}
 
 	removePic() {
@@ -493,6 +495,68 @@ class NewItem extends Component {
 	removeItem() {
 		this.props.removeItem(this.props.index);
 	}
+
+	// TODO: formate price right
+	// hi() {
+
+	// }
+
+	// textField(text) {
+	// 	if textField.text == "" {
+	// 		if replacementString == "$" {
+	// 			return true
+	// 		} else {
+	// 			if replacementString == numberFiltered {
+	// 				textField.text = "$"
+	// 				newString = "$" + (newString as String)
+					
+	// 			}
+	// 		}
+	// 	}
+			
+			
+	// 		//Don't let the user delete the $
+			
+	// 		if newString == ("$" as NSString) {
+	// 			textField.text = ""
+	// 		} else {
+	// 			if !newString.containsString("$") && newString != ("" as NSString){
+	// 				return false
+	// 			}
+	// 		}
+			
+	// 		if textField.text!.containsString(".") {
+	// 			if replacementString.containsString(".") { //Return false if the user is trying to type two decimals
+	// 				return false
+	// 			}
+	// 			let newDecimalArray = newString.componentsSeparatedByString(".")
+	// 			if newDecimalArray.count == 2 {
+	// 			let decimals = newDecimalArray[newDecimalArray.count - 1]
+	// 			if decimals.characters.count > 2 { // don't let the user add 3+ decimal places
+	// 				return false
+	// 			}
+	// 			}
+	// 		}
+	// 		if textField.text == "$" && newString == "$." { //If the user tries to write $., add in a zero: $0.
+	// 			textField.text = "$0"
+	// 		}
+			
+			
+	// 		let maxLength = 6
+	// 		return replacementString == numberFiltered && newString.length <= maxLength
+	// 	}
+	// 	if textField == tagField {
+	// 		return false
+	// 	}
+	// 	if textField == itemName {
+	// 		let maxLength = 50
+	// 		let currentString: NSString = itemName.text!
+	// 		let newString: NSString = currentString.stringByReplacingCharactersInRange(range, withString: replacementString)
+	// 		itemNameChanged(textField)
+	// 		return newString.length <= maxLength
+	// 	}
+	// 	return true
+	// }
 
 
 }

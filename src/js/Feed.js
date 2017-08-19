@@ -1,7 +1,9 @@
 import React, { Component } from 'react'
 import '../css/App.css'
-import { Button, Image, FormGroup, FormControl, DropdownButton, MenuItem, Carousel } from 'react-bootstrap'
+import { FormGroup, FormControl, DropdownButton, MenuItem } from 'react-bootstrap'
 import { browserHistory } from 'react-router'
+import Album from './Album'
+import Item from './Item'
 
 
 //CURRENT STATUS
@@ -30,7 +32,12 @@ export default class Feed extends Component {
 		if (this.state.filterBy === "All Albums") {
 			itemsToShow = this.props.albums.map(
 				(album) => {
-					return( <Album key={album.albumID} album={album} activeIndex={0} goToCloseup={this.goToCloseup} />);
+					return( <Album 
+						key={album.albumID} 
+						album={album} 
+						activeIndex={0} 
+						showPrice={true}
+						onClick={this.goToCloseup} />);
 				})
 		} else {
 			itemsToShow = this.props.albums.map(
@@ -38,7 +45,15 @@ export default class Feed extends Component {
 					return(
 					album.unsoldItems.filter(this.filterByCategory).map(
 						(item, index) => {
-							return( <Item key={item.imageKey} item={item} goToCloseup={this.goToCloseup} />);
+							return( <Item 
+								key={item.imageKey} 
+								item={item} 
+								onClick={this.goToCloseup} 
+								sellerCollege={album.sellerCollege}
+								sellerID={album.sellerCollege}
+								showPrice={true}
+								user={this.props.user}/>
+							);
 						}
 					))
 				}
@@ -46,7 +61,7 @@ export default class Feed extends Component {
 		}
 
 		return (
-			<div className="wrapper ugh">
+			<div>
 				<div className="side-by-side">
 					{/* Filter/Category Options */}
 					<FormGroup>
@@ -81,63 +96,10 @@ export default class Feed extends Component {
 		})
 	}
 
-	goToCloseup(imageKey) {
-		const path = "/closeup/" + imageKey;
+	goToCloseup(sellerCollege, sellerID, imageKey) {
+		const path = "/closeup/" + sellerCollege + "/" + sellerID + "/unsold/" + imageKey;
+		//const path = "/closeup/" + imageKey;
 		browserHistory.push(path);
 	}
 
 }
-
-class Album extends Component {
-	render() {
-		return (
-			<div>
-				<Carousel className="small center">
-					{this.props.album.unsoldItems.map((item) => {
-						return ( 			
-							<Button key={item.imageKey} onClick={() => this.props.goToCloseup(item.imageKey)}>
-								<Carousel.Item>
-									<Image className="small" src={item.picture} />
-									<PriceSticker price={item.price} />
-								</Carousel.Item>
-							</Button>
-						);
-					})}
-				</Carousel>
-			</div>
-		)
-	}
-} 
- //{/* TODO: Is there a more elegant way to do this (e.g. put button and sticker outside carousel?*/}
-
-
-
-class Item extends Component {
-	render() {
-		return (
-			<div>
-				<Button onClick={() => this.props.goToCloseup(this.props.item.imageKey)}>
-					<Image  className="small" src={this.props.item.picture} thumbnail />
-					<PriceSticker className="ugh" price={"$" + this.props.item.price} />
-				</Button>
-				{/*TODO: format price better*/}
-			</div>
-		)
-	}
-}
-
-
-
-
-class PriceSticker extends Component {
-	render() {
-		return (
-			<div className="bluesticker">
-				{this.props.price}
-			</div>
-		)
-	}
-}
-
-
-

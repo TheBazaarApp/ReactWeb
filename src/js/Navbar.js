@@ -34,7 +34,7 @@ export default class MenuBar extends React.Component {
 						<NavItem onClick={() => this.navigate("profile/" + this.props.college + "/" + this.props.uid)}>Profile</NavItem>
 						<NavItem >Contacts</NavItem>
 						<NavItem >Notifications</NavItem>
-						<NavItem >Settings</NavItem>
+						<NavItem  onClick={() => this.navigate("settings/")}>Settings</NavItem>
 					</Nav>
 					<Nav pullRight>
 						<NavItem eventKey={1} href="#">Log Out</NavItem>

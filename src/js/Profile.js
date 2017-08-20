@@ -19,7 +19,7 @@ export default class Profile extends Component {
 		this.state = {
 			name: "name", 
 			collegeName: "Harvey Mudd College",
-			profilePic: "cheetah.jpg",
+			profilePic: null,
 			rating: 5,
 			tempName: null,
 			tempCollege: null
@@ -46,13 +46,25 @@ export default class Profile extends Component {
 				<div className="side-by-side">
 					{[1,2,3,4,5].map((starNum) => this.getRatingStar(starNum))}
 				</div>
+
 			{/*TODO: Choose image size using the column thing.*/}
-				<Image className="img-circle newPic" src={this.state.profilePic}/>
-				{ (!this.state.edit) && <Button className="center" onClick={() => this.toggleEdit(true)} >Edit</Button> }
-				{ (this.state.edit) && <Button className="center" onClick={() => this.toggleEdit(false)}>Cancel</Button>}
-				{ (this.state.edit) && <Button className="center" onClick={() => this.saveProfile()}>Save</Button>}
+				<div className="block"><Image className="img-circle newPic" src={this.state.profilePic} onClick={this.choosePic()}/></div>
+				{ (this.state.edit) && <div>
+						<FormGroup className="small-width center">
+							<FormControl type="file" />
+						</FormGroup>
+					</div> }
+				<br/>
+				{ (!this.state.edit) && <div className="block"><Button className="center" onClick={() => this.toggleEdit(true)} >Edit</Button></div> }
+				{ (this.state.edit) && <div><Button className="center" onClick={() => this.toggleEdit(false)}>Cancel</Button></div> }
+				<br/>
+				{ (this.state.edit) && <div><Button className="center" onClick={() => this.saveProfile()}>Save</Button></div> }
 			</div>
 		)
+	}
+
+	choosePic() {
+		
 	}
 
 	//Get all relevant info
@@ -98,11 +110,11 @@ export default class Profile extends Component {
 		profileRef.on('value', function(snapshot) {
 			if (snapshot) {
 				const name = snapshot.val().name;
-				const rating = snapshot.val().rating;
+				const rating = snapshot.val().rating; //TODO: Get this!
 				const collegeName = "Harvey Mudd College"; //TODO: Get this from their email domain
 				this.setState({
 					name: name,
-					rating: rating,
+					rating: 4.5,
 					collegeName: collegeName
 				})
 			}

@@ -1,3 +1,9 @@
+
+$our-blue: #0064b7;
+
+
+
+
 .App {
 	text-align: center;
 }
@@ -24,12 +30,6 @@
 }
 
 
-.ugh {
-	background-color: purple;
-}
-
-
-
 .small {
 	width: 250px;
 	height: 250px;
@@ -48,6 +48,11 @@
 	margin:auto;
 	display: block;
 	transform: translate(80px, -50%);
+}
+
+.default-pic {
+	background-image: url("../img/cheetah.jpg");
+	background-repeat: no-repeat;
 }
 
 
@@ -76,9 +81,8 @@
 
 
 #new-item-box {
-	background-color: blue;
 	max-width: 800px;
-	padding: 20px;
+	padding: 5px;
 }
 
 
@@ -87,11 +91,128 @@
 }
 
 .newPic {
-	width: 200px;
-	height: 200px;
+	width: 250px;
+	height: 250px;
 }
 
 
 .newItem {
-	margin: 20px;
+	margin: 10px;
+	padding: 10px;
+}
+
+.feed-item {
+	margin: 30px;
+	padding: 10px;
+}
+
+.red {
+	background-color: red;
+}
+
+.small-width {
+	width: 250px;
+}
+
+.margin-5 {
+	margin: 5px;
+}
+
+.margin-10 {
+	margin: 10px;
+}
+
+.half-width {
+	max-width: 50%;
+}
+
+.closeup-table-row td {
+	padding: 5px 10px;
+}
+
+.flat-button {
+	background-color: white;
+	border-radius: 50%;
+	border: none;
+	box-shadow: none;
+}
+
+.block {
+	display: block;
+}
+
+.purple {
+	background-color: purple;
+}
+
+.green {
+	background-color: green;
+}
+
+.ten-padding {
+	padding: 10px;
+}
+
+.five-padding {
+	padding: 5px;
+}
+
+.curve-corner {
+	border-radius: 25px;
+}
+
+.flex-parent {
+	display: flex;
+}
+
+.flex {
+	flex: 1;
+}
+
+.our-blue {
+	background-color: #0064b7;
+}
+
+.vertical-only {
+	resize: vertical;
+}
+
+.album-name {
+	max-width: 800px;
+	margin: auto;
+	text-align: center;
+}
+
+.create-button {
+	max-width: 800px;
+	margin: auto;
+	margin-bottom: 50px;
+}
+
+.add-button {
+	background-color: $our-blue;
+	border-radius: 50%;
+	border: none;
+	box-shadow: none;
+	color: white;
+}
+
+.body-width {
+	max-width: 800px;
+	margin: auto;
+	margin-bottom: 50px;
+}
+
+.img-circle {
+	border-radius: 50%;
+	border: 5px solid $our-blue;
+}
+
+.login-text {
+	max-width: 400px;
+	margin: auto;
+	margin-bottom: 50px;
+	input {
+		text-align: center;
+	}
 }

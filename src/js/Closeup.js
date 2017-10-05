@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
 import '../css/App.css'
-import { Link } from 'react-router'
+import { Link } from 'react-router-dom'
 import { Image, Button, Modal } from 'react-bootstrap'
 import * as firebase from 'firebase'
-import { browserHistory } from 'react-router'
 
 
 //CURRENT STATUS
@@ -62,7 +61,7 @@ export default class Closeup extends Component {
 				<Image className="newPic" src={this.state.pic} />
 				<br/>
 				<div className="center">
-					<table className="center" cellpadding="0" cellspacing="0">
+					<table className="center" cellPadding="0" cellSpacing="0">
 						<tbody>
 							<tr className="closeup-table-row">
 								<td>Item:</td>
@@ -72,25 +71,25 @@ export default class Closeup extends Component {
 								<td>Price:</td>
 								<td>{this.state.price}</td>
 							</tr>
-							<tr className="closeup-table-row">
-								<td>Seller:</td>
-								<td>
-									<Link to={'/profile/' + this.props.params.sellerCollege + "/" + this.props.params.sellerID}>{this.state.sellerName}</Link>
-								</td>
-							</tr>
-						</tbody>
-					</table>
-					PUT LOCATION HERE
-				</div>
-				<div className="small-width center" >
-					{ (this.props.params.category === "unsold") && <Button disabled={!this.state.isMine} block onClick={this.showBuyerPopup} >Buy</Button> }
-					{ (this.props.params.category === "sold" && !this.state.isCancelled) && <Button block onClick={this.showCancelledPopup} >Cancel Transaction</Button> }
-					{ (this.props.params.category === "purchased" && !this.state.isCancelled) && <Button block onClick={this.showCancelledPopup} >Cancel Transaction</Button> }
-					{ (this.props.params.category === "sold" && this.state.isCancelled) && <Button block onClick={this.showFeedPopup} >Restore to Feed</Button> }
-					{ (this.props.params.category === "sold" && this.state.isCancelled) && <Button block onClick={this.showDeletePopup} >Delete Forever</Button> }
-				</div>
-			{/*Popup when a user clicks 'BUY'.*/}
-				<Popup 
+	 						<tr className="closeup-table-row">
+	 							<td>Seller:</td>
+	 							<td>
+	 								<Link to={'/profile/' + this.props.match.params.sellerCollege + "/" + this.props.match.params.sellerID}>{this.state.sellerName}</Link>
+	 							</td>
+	 						</tr>
+	 					</tbody>
+	 				</table>
+	 				PUT LOCATION HERE
+	 			</div>
+	 			<div className="small-width center" >
+	 				{ (this.props.match.params.category === "unsold") && <Button disabled={!this.state.isMine} block onClick={this.showBuyerPopup} >Buy</Button> }
+	 				{ (this.props.match.params.category === "sold" && !this.state.isCancelled) && <Button block onClick={this.showCancelledPopup} >Cancel Transaction</Button> }
+	 				{ (this.props.match.params.category === "purchased" && !this.state.isCancelled) && <Button block onClick={this.showCancelledPopup} >Cancel Transaction</Button> }
+	 				{ (this.props.match.params.category === "sold" && this.state.isCancelled) && <Button block onClick={this.showFeedPopup} >Restore to Feed</Button> }
+	 				{ (this.props.match.params.category === "sold" && this.state.isCancelled) && <Button block onClick={this.showDeletePopup} >Delete Forever</Button> }
+	 			</div>
+	 		{/*Popup when a user clicks 'BUY'.*/}
+	 			<Popup 
 					showCondition={this.state.showBuyerPopup}
 					yesText="Buy"
 					yesAction={this.buyItem}
@@ -127,11 +126,6 @@ export default class Closeup extends Component {
 					title="Are you sure you want to delete this item forever?"
 					body="This action cannot be undone."
 				/>
-
-
-				
-
-
 			</div>
 		)
 	}
@@ -173,8 +167,9 @@ export default class Closeup extends Component {
 		this.restoreToFeed();
 		//TODO: Test This!
 		//Refresh the page, now with a new category
-		const path = "/closeup/" + this.props.params.sellerCollege + "/" + this.props.params.sellerID + "/unsold/" + this.props.params.itemID;
-		browserHistory.push(path);
+		alert(this.props.match.params.sellerCollege);
+		const path = "/closeup/" + this.props.match.params.sellerCollege + "/" + this.props.match.params.sellerID + "/unsold/" + this.props.match.params.itemID;
+		this.history.push(path);
 	}
 
 	deleteForever() {
@@ -191,7 +186,7 @@ export default class Closeup extends Component {
 
 
 	getItemInfo() {
-		const imageRef = firebase.database().ref().child(this.props.params.sellerCollege + "/user/" + this.props.params.sellerID + "/" + this.props.params.category + "Items/" + this.props.params.itemID);
+		const imageRef = firebase.database().ref().child(this.props.match.params.sellerCollege + "/user/" + this.props.match.params.sellerID + "/" + this.props.match.params.category + "Items/" + this.props.match.params.itemID);
 		console.log("ref: " + imageRef);
 		imageRef.on('value', function(snapshot) {
 			if (snapshot.val()) {
@@ -207,7 +202,7 @@ export default class Closeup extends Component {
 				newState.locationLat = snapshot.child("locationLat").val();
 				newState.albumKey = snapshot.child("albumKey").val();
 				newState.isCancelled = snapshot.child("cancelled").val();
-				newState.isMine = (this.props.params.sellerID === this.props.user.uid);
+				newState.isMine = (this.props.match.params.sellerID === this.props.user.uid);
 				console.log("IS MINE? " + newState.isMine);
 				let price = snapshot.child("price").val();
 				if (price === "-0.1134") { //TODO: Is this necessary?
@@ -216,7 +211,7 @@ export default class Closeup extends Component {
 				newState.price = price;
 
 				//TODO: Do we need albumName?
-				if (this.props.params.category === "sold") {
+				if (this.props.match.params.category === "sold") {
 					newState.transactionCancelled = (snapshot.child("cancelled") != null);
 					newState.buyerName = snapshot.child("buyerName").val();
 					newState.buyerID = snapshot.child("buyerID").val();
@@ -233,7 +228,7 @@ export default class Closeup extends Component {
 	}
 
 	getImage(item, album) {
-		const imageRef = firebase.storage().ref().child(this.props.params.sellerCollege + '/user/' + this.props.params.sellerID + '/images/' + this.props.params.itemID);
+		const imageRef = firebase.storage().ref().child(this.props.match.params.sellerCollege + '/user/' + this.props.match.params.sellerID + '/images/' + this.props.match.params.itemID);
 		imageRef.getDownloadURL().then(function(url) {
 			this.setState({
 				pic: url
@@ -246,9 +241,9 @@ export default class Closeup extends Component {
 
 	buyInDatabase() {
 		// console.log("changing in database!!!")
-		// const sellerCollege = this.props.params.sellerCollege;
-		// const sellerUID = this.props.params.sellerID;
-		// const itemID = this.props.params.itemID;
+		// const sellerCollege = this.props.match.params.sellerCollege;
+		// const sellerUID = this.props.match.params.sellerID;
+		// const itemID = this.props.match.params.itemID;
 		// const albumID = this.state.albumID;
 		// const buyerCollege = this.props.user.college;
 		// const buyerUID = this.props.uiser.uid;
@@ -317,7 +312,7 @@ export default class Closeup extends Component {
 
 
 		// 		//TODO: Do we need albumName?
-		// 		if (this.props.params.category === "sold") {
+		// 		if (this.props.match.params.category === "sold") {
 		// 			newState.transactionCancelled = (snapshot.child("cancelled") != null);
 		// 			newState.buyerName = snapshot.child("buyerName").val();
 		// 			newState.buyerID = snapshot.child("buyerID").val();

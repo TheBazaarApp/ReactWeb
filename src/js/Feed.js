@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import '../css/App.css'
 import { FormGroup, FormControl, DropdownButton, MenuItem } from 'react-bootstrap'
-import { browserHistory } from 'react-router'
 import Album from './Album'
 import Item from './Item'
 
@@ -25,6 +24,7 @@ export default class Feed extends Component {
 	}
 
 	render() {
+		//alert(this.props.history)
 		const filterCategories = ["All Albums", "All Items", "Fashion", "Electronics", "Appliances", "Transportation", "Furniture", "School Supplies", "Services", "Other"];
 		
 		// Either show albums or items depending on what the user has selected
@@ -37,20 +37,20 @@ export default class Feed extends Component {
 						album={album} 
 						activeIndex={0} 
 						showPrice={true}
-						onClick={this.goToCloseup} />);
+						onClick={this.goToCloseup.bind(this)} />);
 				})
 		} else {
 			itemsToShow = this.props.albums.map(
 				(album, index) => {
 					return(
-					album.unsoldItems.filter(this.filterByCategory).map(
+					album.unsoldItems.filter(this.filterAll.bind(this)).map(
 						(item, index) => {
 							return( <Item 
 								key={item.imageKey} 
 								item={item} 
-								onClick={this.goToCloseup} 
+								onClick={this.goToCloseup.bind(this)} 
 								sellerCollege={album.sellerCollege}
-								sellerID={album.sellerCollege}
+								sellerID={album.sellerID}
 								showPrice={true}
 								user={this.props.user}/>
 							);
@@ -65,7 +65,7 @@ export default class Feed extends Component {
 				<div className="side-by-side">
 					{/* Filter/Category Options */}
 					<FormGroup>
-						<FormControl type="text" placeholder="Filter by keyword" />
+						<FormControl type="text" placeholder="Filter by keyword" onChange={(e) => this.handleFilterTextChange(e.target.value)} />
 					</FormGroup>
 					<DropdownButton 
 						id="categories" 
@@ -84,10 +84,33 @@ export default class Feed extends Component {
 	}
 
 
+	filterAll(item) {
+		return this.filterByCategory(item) && this.filterByKeyword(item);
+	}
 
 	filterByCategory(item) {
 		const category = this.state.filterBy;
 		return (category === "All Items" || item.tag === category);
+	}
+
+	filterByKeyword(item) {
+		// Can filter by name, price, description, tag
+		const keyword = this.state.filterText;
+		if (keyword == null) {
+			return true;
+		}
+		return 	item.desscription.indexOf(keyword) > -1 ||
+					item.tag.indexOf(keyword) > -1 ||
+					item.name.indexOf(keyword) > -1 ||
+					String(item.price).indexOf(keyword) > -1;
+	}
+
+	handleFilterTextChange(value) {
+		var newState = {filterText: value};
+		if (value && this.state.filterBy === "All Albums") {
+			newState["filterBy"] = "All Items";
+		}
+		this.setState(newState);
 	}
 
 	handleCategoryChange(value) {
@@ -98,8 +121,6 @@ export default class Feed extends Component {
 
 	goToCloseup(sellerCollege, sellerID, imageKey) {
 		const path = "/closeup/" + sellerCollege + "/" + sellerID + "/unsold/" + imageKey;
-		//const path = "/closeup/" + imageKey;
-		browserHistory.push(path);
+		this.props.history.push(path)
 	}
-
 }

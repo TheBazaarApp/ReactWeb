@@ -10,6 +10,7 @@ import { Button,
 		} from 'react-bootstrap'
 import * as firebase from 'firebase'
 import FieldGroup from './RepeatedComponents/FieldGroup'
+import Popup from './RepeatedComponents/Popup'
 
 export default class Settings extends Component {
 
@@ -101,7 +102,36 @@ export default class Settings extends Component {
 				</Modal>
 
 		{/*Change password popup*/}
-				<Modal 
+				<Popup
+						title="Change Password"
+						showPopup={this.state.changePasswordPopup} 
+						hidePopup={this.closePopups.bind(this)}	
+						action={this.changePassword.bind(this)}
+						actionText="Change Password">
+					<FieldGroup
+						type="password"
+						label="Old Password"
+						onChange={(e) => this.updateState("currPassword", e.target.value)}
+					/>
+					<FieldGroup
+						type="password"
+						label="New Password"
+						onChange={(e) => this.updateState("newPassword", e.target.value)}
+					/>
+					<FieldGroup
+						type="password"
+						label="Confirm New Password"
+						onChange={(e) => this.updateState("confirmPassword", e.target.value)}
+					/>
+				</Popup>
+
+				<Popup 
+					showPopup={this.state.simpleAlert}
+					hidePopup={this.closePopups.bind(this)}>
+					{this.state.alertMessage}
+				</Popup>
+
+				{/*<Modal 
 					show={this.state.changePasswordPopup} 
 					onHide={this.closePopups.bind(this)}>
 					<Modal.Header closeButton>
@@ -112,20 +142,17 @@ export default class Settings extends Component {
 							<div>
 								<FieldGroup
 									type="password"
-									label="Old Password:"
-									placeholder="Old Password"
+									label="Old Password"
 									onChange={(e) => this.updateState("currPassword", e.target.value)}
 								/>
 								<FieldGroup
 									type="password"
-									label="New Password:"
-									placeholder="New Password"
+									label="New Password"
 									onChange={(e) => this.updateState("newPassword", e.target.value)}
 								/>
 								<FieldGroup
 									type="password"
-									label="Confirm New Password:"
-									placeholder="New Password"
+									label="Confirm New Password"
 									onChange={(e) => this.updateState("confirmPassword", e.target.value)}
 								/>
 
@@ -154,7 +181,7 @@ export default class Settings extends Component {
 							</div>}
 
 					</Modal.Body>
-				</Modal>
+				</Modal>*/}
 
 			{/*Forgot password popup.*/}
 				<Modal 
@@ -229,30 +256,36 @@ export default class Settings extends Component {
 	}
 
 	changePassword() {
+		console.log(this);
+		alert("hi");
 		if (this.state.newPassword !== this.state.confirmPassword) {
+			this.newPopup();
 			this.setState({
-				modalStatus: "error",
-				errorMessage: "The new password fields do not match.",
+				simpleAlert: true,
+				alertMessage: "The new password fields do not match.",
 			});
 			return;
 		}
 		if (!this.state.newPassword) {
+			this.newPopup();
 			this.setState({
-				modalStatus: "error",
-				errorMessage: "Please input your new password."
-			})
+				simpleAlert: true,
+				alertMessage: "Please input your new password.",
+			});
 			return;
 		}
 		if (!this.state.currPassword) {
+			this.newPopup();
 			this.setState({
-				modalStatus: "error",
-				errorMessage: "Please input your current password."
-			})
+				simpleAlert: true,
+				alertMessage: "Please input your current password.",
+			});
 			return;
 		}
 		var user = firebase.auth().currentUser;
 		// re-authenticate
 		var credential = firebase.auth.EmailAuthProvider.credential(user.email, this.state.currPassword);
+		console.log(user);
 		user.reauthenticateWithCredential(credential).then(function() {
 			firebase.auth().currentUser.updatePassword(this.state.newPassword).then(function() {
 				//It worked!
@@ -292,6 +325,17 @@ export default class Settings extends Component {
 		this.setState(newState);
 	}
 
+	newPopup() {
+		// Close existing ones
+		this.setState({ 
+			changeEmailPopup: false,
+			changePasswordPopup: false,
+			forgotPasswordPopup: false,
+			deleteAccountPopup: false,
+			modalStatus: "input",
+		});
+	}
+
 	closePopups() {
 		this.setState({ 
 			changeEmailPopup: false,
@@ -303,7 +347,8 @@ export default class Settings extends Component {
 			currPassword: null,
 			newPassword: null,
 			confirmPassword: null,
-			newEmail: null
+			newEmail: null,
+			simpleAlert: false,
 		});
 	}
 

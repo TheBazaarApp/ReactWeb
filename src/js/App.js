@@ -1,7 +1,19 @@
 import React, { Component } from 'react'
 import '../css/App.css'
-import MenuBar from './Navbar'
+import MenuBar from './MenuBar'
 import * as firebase from 'firebase'
+import { history } from 'react-router'
+import { BrowserRouter, Route } from 'react-router-dom'
+
+import About from './About'
+import NewAlbum from './NewAlbum'
+import Closeup from './Closeup'
+import Feed from './Feed'
+import Profile from './Profile'
+import MyItems from './MyItems'
+import Settings from './Settings'
+import Welcome from './Welcome'
+import Chat from './Chat'
 
 //TODO: Change database auth rules back!!
 
@@ -25,47 +37,88 @@ export default class App extends Component {
 	//TODO: Later make it not just one automatic user or one default trading list
 	constructor() {
 		super();
-		const user = {
-			userName: "Olivia the Great",
-			uid: "7BU605n3yDMci6fafU7iPIZUJhk1",
-			college: "hmc_edu"
-		}
 		this.state = {
 			albums: [], 
-			user: user, //Null when not logged in //The current default is me (Olivia)
-			tradingList: ["hmc_edu"]
-		}
+			user: firebase.auth().currentUser,
+			tradingList: ["hmc_edu"],
+			college: "hmc_edu" 
+		}//TODO: Don't hard-code this
+		this.dealWithAuthState();
 	}
 
 	//Listen to colleges for items for the feed
 	//TODO: Consider moving this to the feed
 	componentDidMount() {
-		this.listenToColleges();
-		this.listenToMyItems();
+		if (this.state.user) {
+			this.listenToColleges();
+			this.listenToMyItems();
+			this.getProfile();
+		}
 	}
 
-
-	render() {
-		//Give all children certain properties (e.g. albums, current user);
-		//TODO: Maybe only give each child what it needs, potentially through a switch statement
-		var childrenWithProps = React.Children.map(this.props.children, function(child) {
-					return React.cloneElement(child, {
-						albums: this.state.albums,
-						myAlbums: this.state.myAlbums,
-						unsoldItems: this.state.unsoldItems,
-						soldItems: this.state.soldItems,
-						purchasedItems: this.state.purchasedItems,
-						user: this.state.user
-					});
-				}.bind(this));
+		render() {
 		return (
-			<div className="App">
-				<MenuBar 
-					college={this.state.user.college}
-					uid={this.state.user.uid} />
-				{childrenWithProps}
-			</div>
-		);
+			<BrowserRouter history={history}>
+				<div className="App">
+					{this.state.user &&
+					<div>
+						<Route 	path="/"
+								render={(props) => <MenuBar {...props} 
+									college={this.state.college}
+									uid={this.state.user.uid} />} />
+						<Route 	path="/about"
+								render={(props) => <About {...props} />} />
+						<Route 	path="/newAlbum"
+								render={(props) => <NewAlbum {...props}
+									user={this.state.user} />} />
+						<Route 	path="/closeup/:sellerCollege/:sellerID/:category/:itemID"
+								render={(props) => <Closeup {...props}
+									user={this.state.user}
+									loggedIn={this.state.loggedIn} />} />
+						<Route 	path="/profile/:college/:uid"
+								render={(props) => <Profile {...props}
+									collegeName={this.state.collegeName}
+									rating={this.state.rating}
+									count={this.state.count}
+									user={this.state.user}/>} />
+						<Route 	path="/myItems/:college/:uid/:category"
+								render={(props) => <MyItems {...props}
+									user={this.state.user}/>}
+									myAlbums={this.state.myAlbums}
+									unsoldItems={this.state.unsoldItems}
+									soldItems={this.state.soldItems}
+									purchasedItems={this.state.purchasedItems} />
+						<Route 	path="/settings"
+								render={(props) => <Settings {...props}
+									user={this.state.user}/>} />
+						<Route 	path="/feed"
+								render={(props) => <Feed {...props}
+									user={this.state.user}
+									albums={this.state.albums} />} />
+						
+						<Route 	path="/chat"
+								render={(props) => <Chat {...props}
+									college={this.state.college}
+									user={this.state.user} />} />
+					</div>
+					}
+					<Route 	path="/welcome"
+							render={(props) => <Welcome {...props}
+								user={this.state.user}/>} />
+				</div>
+			</BrowserRouter>
+		)
+	}
+
+	dealWithAuthState() {
+		firebase.auth().onAuthStateChanged(function(user) {
+			this.setState({user: user});
+			if (user) {
+				this.listenToColleges();
+				this.listenToMyItems();
+				this.getProfile();
+			}
+		}.bind(this))
 	}
 
 	//////////////////////////////////////////////////////////////////////
@@ -83,7 +136,6 @@ export default class App extends Component {
 			this.createChildRemovedListener_Feed(feedRef);
 		} 	
 	}
-
 
 	listenToMyItems() {
 		this.createMyItemListener('unsoldItems')
@@ -104,6 +156,8 @@ export default class App extends Component {
 		}.bind(this));
 	}
 
+
+
 	createItem(itemInfo) {
 		var newItem = {
 			albumKey: itemInfo.child('albumKey').val(),
@@ -120,7 +174,6 @@ export default class App extends Component {
 		}
 		return newItem
 	}
-
 
 	//TODO: Maybe hide image until it shows up
 	createChildAddedListener_Feed(feedRef, college) {
@@ -246,36 +299,40 @@ export default class App extends Component {
 		this.updateState(albums);
 	}	
 
-
 	//////////////////////////////////////////////////////////////////////
 	////////////                                                //////////
 	////////////           PERSONAL INFO FUNCTIONS              //////////
 	////////////                                                //////////
 	//////////////////////////////////////////////////////////////////////
 
-	// getUser(){
-	// 	//TODO: Get rid of this function once login is implemented
-		
-
-	// }
-
-
-
-
-
-
-	//default lat, long, coords
-	//rating
-	//rating count
-	//name
-	//email
-	//colege
-
-	//name
-
-
-	//Plan of action: Do profile (basic), then AddewItem, then Closeup
-	//At midnight, stop for TUTP, workout, and shower
-	//Set alarm for phone call
-
+	getProfile() {
+		alert("getting profile");
+		const collegeRef = firebase.database().ref().child("users/" + this.state.user.uid);
+		console.log("collegeRef", "users/" + this.state.user.uid)
+		collegeRef.on('value', function(snapshot) {
+			const college = snapshot.val();
+			const profileRef = firebase.database().ref().child(college + '/user/' + this.state.user.uid + '/profile/')
+			console.log("profileRef", college + '/user/' + this.state.user.uid + '/profile/');
+			profileRef.on('value', function(snapshot) {
+				alert("profile ref");
+				console.log(snapshot.val())
+				console.log(snapshot.child('name').val())
+				//default lat, long, coords
+				this.setState({
+					college: college,
+					collegeName: snapshot.child('collegeName').val(),
+					name: snapshot.child('name').val(),
+					rating: snapshot.child('rating').val(),
+					count : snapshot.child('count').val(),
+				})
+			}.bind(this))
+		}.bind(this));
+	}
 }
+
+
+
+//NOW(olivia): Make it so the users fold of the database exists.
+
+
+

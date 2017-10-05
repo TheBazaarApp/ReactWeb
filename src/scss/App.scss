@@ -216,3 +216,39 @@ $our-blue: #0064b7;
 		text-align: center;
 	}
 }
+
+
+.whatever {
+	background-color: purple;
+	//height: 140px;
+	overflow: auto;
+	padding: 0px;
+}
+
+.item-price {
+	color: white;
+	background-color: rgba(50, 50, 50, 0.5);
+	text-align: right;
+	margin: 5px 5px;
+	padding: 5px 5px;
+	position: absolute;
+}
+
+// .item-item-price {
+// 	color: white;
+// 	background-color: rgba(50, 50, 50, 0.5);
+// 	text-align: right;
+// 	margin: 5px 5px;
+// 	padding: 5px 5px;
+// 	position: absolute;
+// }
+
+.chat-sidebar {
+	width: 33%;
+	background-color: red;
+}
+
+.current-chat {
+	width: 67%;
+	background-color: purple;
+}

@@ -1,6 +1,5 @@
 import React from 'react'
 import { Navbar, Nav, NavItem } from 'react-bootstrap'
-import { browserHistory } from 'react-router'
 
 // Useful link: https://react-bootstrap.github.io/components.html#navbars
 //TODO: If necessary, ditch react-router.  If we want to keep it, simulate NavItem with this:  <Link to="/about">Please Work</Link>
@@ -32,7 +31,7 @@ export default class MenuBar extends React.Component {
 						<NavItem onClick={() => this.navigate("myItems/" + this.props.college + "/" + this.props.uid + "/unsold")}>My Items</NavItem>
 						<NavItem onClick={() => this.navigate("newAlbum")}>Sell</NavItem>
 						<NavItem onClick={() => this.navigate("profile/" + this.props.college + "/" + this.props.uid)}>Profile</NavItem>
-						<NavItem >Contacts</NavItem>
+						<NavItem onClick={() => this.navigate("chat")}>Chat</NavItem>
 						<NavItem >Notifications</NavItem>
 						<NavItem  onClick={() => this.navigate("settings/")}>Settings</NavItem>
 					</Nav>
@@ -45,8 +44,7 @@ export default class MenuBar extends React.Component {
 		)
 	}
 
-	navigate(destination) {
-		const path = "/" + destination;
-		browserHistory.push(path);
+	navigate(place) {
+		this.props.history.push('/' + place)
 	}
 }

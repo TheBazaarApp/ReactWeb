@@ -3,7 +3,6 @@ import '../css/App.css'
 import { Image, Button, Modal, Checkbox, FormGroup, FormControl, ControlLabel, DropdownButton, MenuItem } from 'react-bootstrap'
 import { MdCancel, MdAddCircle } from 'react-icons/lib/md'
 import * as firebase from 'firebase'
-import { browserHistory } from 'react-router'
 import NumericInput from 'react-numeric-input'
 
 
@@ -336,7 +335,7 @@ export default class NewAlbum extends Component {
 	//Navigate to feed
 	goToFeed(imageKey) {
 		const path = "/feed";
-		browserHistory.push(path);
+		this.props.history.push(path);
 	}
 
 	//Save an image to firebase storage

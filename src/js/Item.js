@@ -1,21 +1,19 @@
 import React, { Component } from 'react'
 import '../css/App.css'
-import { Button, Image } from 'react-bootstrap'
-import PriceSticker from './PriceSticker'
+import { Image } from 'react-bootstrap'
 
 export default class Item extends Component {
 	render() {
 		let price = null;
 		if (this.props.showPrice) {
-			price = (<PriceSticker price={"$" + this.props.item.price} />);
+			price = this.props.item.price;
 		}
 		return (
-			<div>
-				<Button className="small" onClick={() => this.props.onClick(this.props.sellerCollege, this.props.sellerID, this.props.item.imageKey)}>
-					<Image className="small" src={this.props.item.picture} thumbnail />
-					{price}
-				</Button>
-				{/*TODO: format price better*/}
+			<div className="center red feed-item" onClick={() => this.props.onClick(this.props.sellerCollege, this.props.sellerID, this.props.item.imageKey)}>
+				
+					<div className="center item-price">{price}</div>
+					<Image className="default-pic small-width" src={this.props.item.picture} />
+				
 			</div>
 		)
 	}

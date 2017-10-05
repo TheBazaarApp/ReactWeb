@@ -16,42 +16,39 @@ export default class Profile extends Component {
 
 	constructor() {
 		super();
-		this.state = {
-			name: "name", 
-			collegeName: "Harvey Mudd College",
-			profilePic: null,
-			rating: 5,
-			tempName: null,
-			tempCollege: null
-		}
+		// this.state = {
+		// 	name: "name", 
+		// 	collegeName: "Harvey Mudd College",
+		// 	profilePic: null,
+		// 	rating: 5,
+		// 	tempName: null,
+		// 	tempCollege: null
+		// }
+		this.state = {}
 		this.handleNameChange = this.handleNameChange.bind(this);
 		this.handleCollegeChange = this.handleCollegeChange.bind(this);
 	}
 
 	render() {
+		console.log("PROPS", this.props)
 		return (
 			<div>
-				{ (!this.state.edit) && <h2>{this.state.name}</h2>}
+				{ (!this.state.edit) && <h2>{this.props.name}</h2>}
 				{ (this.state.edit) && 
 					<FormGroup className="small-width center">
-						<FormControl type="text" defaultValue={this.state.name} value={this.state.tempName} onChange={(event) => this.handleNameChange(event)} />
+						<FormControl type="text" defaultValue={this.props.name} value={this.state.tempName ? this.state.tempName : ""} onChange={(event) => this.handleNameChange(event)} />
 						<HelpBlock>Name</HelpBlock>
 					</FormGroup>}
-				{ (!this.state.edit) && <h4>{this.state.collegeName}</h4>}
-				{ (this.state.edit) && 
-					<FormGroup className="small-width center">
-						<FormControl type="text" defaultValue={this.state.collegeName} value={this.state.tempCollege} onChange={(event) => this.handleCollegeChange(event)} />
-						<HelpBlock>College</HelpBlock>
-					</FormGroup>}
+				<h4>{this.props.collegeName}</h4>
 				<div className="side-by-side">
 					{[1,2,3,4,5].map((starNum) => this.getRatingStar(starNum))}
 				</div>
 
 			{/*TODO: Choose image size using the column thing.*/}
-				<div className="block"><Image className="img-circle newPic" src={this.state.profilePic} onClick={this.choosePic()}/></div>
+				<div className="block"><Image className="img-circle newPic" src={this.props.profilePic} /></div>
 				{ (this.state.edit) && <div>
 						<FormGroup className="small-width center">
-							<FormControl type="file" />
+							<FormControl type="file" accept="image/*" onChange={(e) => this.updateProfileImage(e)}/>
 						</FormGroup>
 					</div> }
 				<br/>
@@ -63,14 +60,23 @@ export default class Profile extends Component {
 		)
 	}
 
-	choosePic() {
-		
+	updateProfileImage(input) { //TODO(olivia): Do this!
+		console.log(input);
+		if (input.files) {
+			alert("inner case");
+			var file = input.files[0];
+			this.setState({profilePic: file});
+		}
+		// console.log(val);
+		// this.setState({profilePic: val});
+		alert("got file");
 	}
+
 
 	//Get all relevant info
 	componentDidMount() {
 		this.getProfilePic();
-		this.getProfileInfo();
+		//this.getProfileInfo(); //TODO: only do this if you need it
 		//this.getItemsForSale();
 	}
 
@@ -95,7 +101,7 @@ export default class Profile extends Component {
 	//Get the user's profile pic, save it to the state
 	getProfilePic() {
 		const storageRef = firebase.storage().ref();
-		var imageRef = storageRef.child(this.props.params.college + '/user/' + this.props.params.uid + '/ProfilePic');
+		var imageRef = storageRef.child(this.props.match.params.college + '/user/' + this.props.match.params.uid + '/ProfilePic');
 		imageRef.getDownloadURL().then(function(url) {
 			this.setState({
 				profilePic: url
@@ -109,6 +115,7 @@ export default class Profile extends Component {
 		const profileRef = this.profilePath();
 		profileRef.on('value', function(snapshot) {
 			if (snapshot) {
+				console.log("SNAPSHOT", snapshot.val())
 				const name = snapshot.val().name;
 				const rating = snapshot.val().rating; //TODO: Get this!
 				const collegeName = "Harvey Mudd College"; //TODO: Get this from their email domain
@@ -124,7 +131,7 @@ export default class Profile extends Component {
 
 	//Return a database reference to the user's profile.
 	profilePath() {
-		return firebase.database().ref(this.props.params.college + '/user/' + this.props.params.uid + "/profile");
+		return firebase.database().ref(this.props.match.params.college + '/user/' + this.props.match.params.uid + "/profile");
 	}
 
 	toggleEdit(isOn) {
@@ -169,7 +176,7 @@ export default class Profile extends Component {
 
 
 	// getUnsoldItem(uid, key, albumid) {
-	// 	const imageRef = firebase.storage().ref().child(this.props.params.college + '/user/' + this.props.params.uid + '/unsoldItems/' + key);
+	// 	const imageRef = firebase.storage().ref().child(this.props.match.params.college + '/user/' + this.props.match.params.uid + '/unsoldItems/' + key);
 	// 	imageRef.getDownloadURL().then(function(url) {
 	// 		console.log("got an unsold item");
 	// 	}).catch(function(error) { //TODO: Take out this catch phrase; make the unsold item just not show up.

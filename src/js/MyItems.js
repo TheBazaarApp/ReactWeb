@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import '../css/App.css'
 import { Button, ButtonGroup } from 'react-bootstrap' //TODO: Are all these used?
-import { browserHistory } from 'react-router'
 import Album from './Album'
 import Item from './Item'
 
@@ -105,11 +104,9 @@ export default class MyItems extends Component {
 
 	setCategory(category) {this.setState({category: category})}
 	setAlbumView(albumView) {this.setState({albumView: albumView})}
-
 	goToCloseup(sellerCollege, sellerID, imageKey) {
 		const path = "/closeup/" + sellerCollege + "/" + sellerID + "/unsold/" + imageKey;
-		//const path = "/closeup/" + imageKey;
-		browserHistory.push(path);
+		this.props.history.push(path)
 	}
 
 

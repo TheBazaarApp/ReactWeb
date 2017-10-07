@@ -306,7 +306,6 @@ export default class App extends Component {
 	//////////////////////////////////////////////////////////////////////
 
 	getProfile() {
-		alert("getting profile");
 		const collegeRef = firebase.database().ref().child("users/" + this.state.user.uid);
 		console.log("collegeRef", "users/" + this.state.user.uid)
 		collegeRef.on('value', function(snapshot) {
@@ -314,7 +313,6 @@ export default class App extends Component {
 			const profileRef = firebase.database().ref().child(college + '/user/' + this.state.user.uid + '/profile/')
 			console.log("profileRef", college + '/user/' + this.state.user.uid + '/profile/');
 			profileRef.on('value', function(snapshot) {
-				alert("profile ref");
 				console.log(snapshot.val())
 				console.log(snapshot.child('name').val())
 				//default lat, long, coords

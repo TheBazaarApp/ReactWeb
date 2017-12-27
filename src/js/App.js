@@ -4,6 +4,7 @@ import MenuBar from './MenuBar'
 import * as firebase from 'firebase'
 import { history } from 'react-router'
 import { BrowserRouter, Route } from 'react-router-dom'
+import $ from 'jquery';
 
 import About from './About'
 import NewAlbum from './NewAlbum'
@@ -41,7 +42,8 @@ export default class App extends Component {
 			albums: [], 
 			user: firebase.auth().currentUser,
 			tradingList: ["hmc_edu"],
-			college: "hmc_edu" 
+			college: "hmc_edu",
+			userName: "Olivia the Awesome"
 		}//TODO: Don't hard-code this
 		this.dealWithAuthState();
 	}
@@ -70,24 +72,29 @@ export default class App extends Component {
 								render={(props) => <About {...props} />} />
 						<Route 	path="/newAlbum"
 								render={(props) => <NewAlbum {...props}
+									serverCall={this.serverCall}
+									college={this.state.college}
+									userName={this.state.userName}
 									user={this.state.user} />} />
 						<Route 	path="/closeup/:sellerCollege/:sellerID/:category/:itemID"
 								render={(props) => <Closeup {...props}
 									user={this.state.user}
+									serverCall={this.serverCall}
 									loggedIn={this.state.loggedIn} />} />
 						<Route 	path="/profile/:college/:uid"
 								render={(props) => <Profile {...props}
+									serverCall={this.serverCall}
 									collegeName={this.state.collegeName}
 									rating={this.state.rating}
 									count={this.state.count}
 									user={this.state.user}/>} />
 						<Route 	path="/myItems/:college/:uid/:category"
 								render={(props) => <MyItems {...props}
-									user={this.state.user}/>}
-									myAlbums={this.state.myAlbums}
+									user={this.state.user}
+									albums={this.state.albums}
 									unsoldItems={this.state.unsoldItems}
 									soldItems={this.state.soldItems}
-									purchasedItems={this.state.purchasedItems} />
+									purchasedItems={this.state.purchasedItems}/>} />
 						<Route 	path="/settings"
 								render={(props) => <Settings {...props}
 									user={this.state.user}/>} />
@@ -99,15 +106,30 @@ export default class App extends Component {
 						<Route 	path="/chat"
 								render={(props) => <Chat {...props}
 									college={this.state.college}
+									serverCall={this.serverCall}
 									user={this.state.user} />} />
 					</div>
 					}
 					<Route 	path="/welcome"
 							render={(props) => <Welcome {...props}
+								serverCall={this.serverCall}
 								user={this.state.user}/>} />
 				</div>
 			</BrowserRouter>
 		)
+	}
+
+	serverCall(data, funcName) {
+		var url = "http://localhost:8000/";
+		console.log('AS A STRING: ', JSON.stringify(data));
+		return $.ajax({
+			type: "POST",
+			url: url + funcName,
+			contentType: "application/json; charset=utf-8",
+			data: JSON.stringify(data),
+			success: function(result) {
+			} //TODO: Add a failure function too?
+		});
 	}
 
 	dealWithAuthState() {
@@ -317,7 +339,7 @@ export default class App extends Component {
 				console.log(snapshot.child('name').val())
 				//default lat, long, coords
 				this.setState({
-					college: college,
+					//college: college, TODO: Make this work!
 					collegeName: snapshot.child('collegeName').val(),
 					name: snapshot.child('name').val(),
 					rating: snapshot.child('rating').val(),

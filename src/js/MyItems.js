@@ -10,7 +10,7 @@ export default class MyItems extends Component {
 		super();
 		this.state = {
 			albumView: true,
-			category: props.params.category,
+			category: props.match.params.category,
 		}
 		//Event handlers
 

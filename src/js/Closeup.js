@@ -186,47 +186,28 @@ export default class Closeup extends Component {
 
 
 	getItemInfo() {
-		const imageRef = firebase.database().ref().child(this.props.match.params.sellerCollege + "/user/" + this.props.match.params.sellerID + "/" + this.props.match.params.category + "Items/" + this.props.match.params.itemID);
-		console.log("ref: " + imageRef);
-		imageRef.on('value', function(snapshot) {
-			if (snapshot.val()) {
-				console.log(snapshot.val());
-				let newState = {};
+		firebase.auth().currentUser.getToken(/* forceRefresh */ true).then(function(idToken) {
 
-				newState.itemName = snapshot.child("name").val();
-				newState.tag = snapshot.child("tag").val();
-				newState.description = snapshot.child("description").val();
-				newState.sellerName = snapshot.child("sellerName").val();
-				newState.location = snapshot.child("location").val();
-				newState.locationLong = snapshot.child("locationLong").val();
-				newState.locationLat = snapshot.child("locationLat").val();
-				newState.albumKey = snapshot.child("albumKey").val();
-				newState.isCancelled = snapshot.child("cancelled").val();
-				newState.isMine = (this.props.match.params.sellerID === this.props.user.uid);
-				console.log("IS MINE? " + newState.isMine);
-				let price = snapshot.child("price").val();
-				if (price === "-0.1134") { //TODO: Is this necessary?
-					price = "0"
-				}
-				newState.price = price;
-
-				//TODO: Do we need albumName?
-				if (this.props.match.params.category === "sold") {
-					newState.transactionCancelled = (snapshot.child("cancelled") != null);
-					newState.buyerName = snapshot.child("buyerName").val();
-					newState.buyerID = snapshot.child("buyerID").val();
-				}
-
-				this.setState(newState);
-
-			} else { //Deal with cases where someone has bought/mobded the item
-				this.setState({
-					showGonePopup: true
-				});
+			const itemDetails = {
+				sellerCollege: this.props.match.params.sellerCollege,
+				sellerID: this.props.match.params.sellerID, 
+				category: this.props.match.params.category,
+				itemID: this.props.match.params.itemID,
+				user: this.props.user,
+				idToken: idToken
 			}
+			this.props.serverCall(itemDetails, "getItemInfo").done(function(responseDict) {
+				if (responseDict.result === 'success') {
+					console.log("SUCCESS!")
+					//DOOO SOMETHING HERE!!!! ... i.e. update state with the new info
+				} else {
+					console.log("UH OH.  WE SHOLD HANDLE THIS CASE");
+				}
+			});
 		}.bind(this));
 	}
 
+		
 	getImage(item, album) {
 		const imageRef = firebase.storage().ref().child(this.props.match.params.sellerCollege + '/user/' + this.props.match.params.sellerID + '/images/' + this.props.match.params.itemID);
 		imageRef.getDownloadURL().then(function(url) {

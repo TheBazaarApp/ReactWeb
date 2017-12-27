@@ -105,6 +105,11 @@ export default class NewAlbum extends Component {
 		)
 	}
 
+	ss() {
+		console.log("ss called");
+		this.serverWrite({hello: "world"}, "test")
+  }
+
 
 	//Updates state to reflect whether or not the isISO checkbox is checked
 	toggleISO(checked) {
@@ -245,90 +250,42 @@ export default class NewAlbum extends Component {
 			return;
 		}
 
-		//Useful values which will come back later
-		const college = this.props.user.college;
-		const uid = this.props.user.uid;
-		const userName = this.props.user.userName;
+		firebase.auth().currentUser.getToken(/* forceRefresh */ true).then(function(idToken) {
 
-		const timestamp = Date.now() * -1; //TODO: Why make it negative?
+		var albumDetails = {
+			idToken: idToken,
+			college: this.props.college,
+			userName: this.props.userName,	
+			albumID: this.props.albumID,
+			items: this.state.items,
+			location: this.state.location,
+			locationLat: this.state.locationLat,
+			locationLong: this.state.locationLong,
+			albumName: this.state.albumName
+		}
 
-		//If we are editing an existing album, it will already have an albumKey
-		const albumKey = (this.props.albumID) ? this.props.albumID : firebase.database().ref().child(college + "/user/" + uid + "/albums").push().key;
-		
-		//Object where all the stuff to be saved to the database will be stored
-		let childUpdates = {};
-
-		//Save every item into the database
-		for (let item of this.state.items) {
-
-			//If we are editing an existing album, some items will already have an imageKey
-			const imageKey = item.imageKey ? item.imageKey : firebase.database().ref().child(college + "/user/" + uid + "/unsoldItems").push().key;
-		
-
-			if(item.pic) {
-				console.log("saving pic")
-				this.savePic(college, uid, imageKey, item.file);
+		this.props.serverCall(albumDetails, "createAlbum").done(function(responseDict) {
+			console.log("response dict", responseDict);
+			if (responseDict.result === 'success') {
+				console.log("SUCCESS!")
+				var items = this.state.items;
+				for (var i = 0; i < items.length; i++) {
+					var item = items[i];
+					var imageKey = responseDict.imageKeys[i];
+					if(item.pic) {
+						console.log("saving pic")
+						this.savePic(this.props.college, this.props.user.uid, imageKey, item.file);
+					}
+				}
+			} else {
+				console.log("UH OH.  WE SHOLD HANDLE THIS CASE");
 			}
-
-			this.sendKeywordNotifications(item);
-
-			//Store item details in the database in multiple different places (by album, and just by image)
-			const detailsUnderAlbums = {
-				price: item.price,
-				description: item.description,
-				tag: item.tag,
-				name: item.itemName,
-				hasPic: (item.pic != null)
-			}
-
-			const detailsUnderItems = {
-				price: item.price,
-				description: item.description,
-				tag: item.tag,
-				sellerId: uid,
-				sellerName: userName,
-				timestamp: timestamp,
-				name: item.itemName,
-				albumName: this.state.albumName,
-				albumKey: albumKey,
-				locationLat: this.state.locationLat ? this.state.locationLat : null,
-				locationLong: this.state.locationLong ? this.state.locationLong : null,
-				location: this.state.location ? this.state.location : null,
-				hasPic: (item.pic != null)
-			}
-
-			childUpdates[college + "/user/" + uid + "/albums/" + albumKey + "/unsoldItems/" + imageKey] = detailsUnderAlbums;
-			childUpdates[college + "/albums/" + albumKey + "/unsoldItems/" + imageKey] = detailsUnderAlbums;
-			childUpdates[college + "/user/" + uid + "/unsoldItems/" + imageKey] = detailsUnderItems;
 			
-		}
-
-		//Store album details
-		const albumDetailsUnderUser = {
-			albumName: this.state.albumName,
-			timestamp: timestamp,
-			locationLat: this.state.locationLat ? this.state.locationLat : null,
-			locationLong: this.state.locationLong ? this.state.locationLong : null,
-			location: this.state.location ? this.state.location : null
-		}
-
-		const albumDetailsUnderCollege = {
-			albumName: this.state.albumName,
-			sellerID: uid,
-			sellerName: userName,
-			timestamp: timestamp,
-			locationLat: this.state.locationLat ? this.state.locationLat : null,
-			locationLong: this.state.locationLong ? this.state.locationLong : null,
-			location: this.state.location ? this.state.location : null
-		}
-
-		childUpdates[college + "/user/" + uid + "/albums/" + albumKey + "/albumDetails"] = albumDetailsUnderUser;
-		childUpdates[college + "/albums/" + albumKey + "/albumDetails"] = albumDetailsUnderCollege;
-		
-		firebase.database().ref().update(childUpdates);
-		console.log("about to go to feed");
-		//Once it's saved, get bumped back to the feed (or maybe to a 'Success' page) //TODO: Discuss success page
-		this.goToFeed();
+			console.log("about to go to feed");
+			//Once it's saved, get bumped back to the feed (or maybe to a 'Success' page) //TODO: Discuss success page
+			this.goToFeed();
+		}.bind(this));
+	}.bind(this));
 	} //TODO: deal with errors in updating.
 
 
